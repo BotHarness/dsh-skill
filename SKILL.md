@@ -3,22 +3,24 @@ name: dsh-plugin-dev
 description: Build full-stack DeepSeek Harness (DSH) plugins — host-side bundle plugins (tools, services, events, settings, credentials) and client-side web UI (slots, lazy-CJS bundles, client↔host RPC). Use when creating or modifying a DSH plugin package (dsh.bundle / dsh.client, cordis.patch.yml), registering tools or UI slots, wiring client RPC, packaging/installing a plugin into a DSH profile, or debugging a plugin that installs/compiles but does not activate or show up.
 license: MIT
 metadata:
-  skillVersion: "0.1.1"
+  skillVersion: "0.2.0"
   verifiedAgainst: "dsh 0.1.6-alpha.2"
   upstreamSha: "ddefc45fbc7f8e46dd73185e68295696d1297887"
   verifiedAt: "2026-09-19"
-  sources: "docs/research/2026-09-19-dsh-plugin-authoring-host.md, docs/research/2026-09-19-dsh-plugin-authoring-client.md"
+  sources: "docs/research/2026-09-19-dsh-plugin-authoring-host.md, docs/research/2026-09-19-dsh-plugin-authoring-client.md, docs/research/2026-09-19-dsh-client-ui-common-patterns.md, docs/research/2026-09-19-dsh-client-ui-flagship-dives.md, docs/research/2026-09-19-dsh-market-deep-dive.md, docs/research/2026-09-19-dsh-client-build-templates.md"
 ---
 
 # DSH Plugin Development (full-stack)
 
-Skill v0.1.1 · verified against DSH `0.1.6-alpha.2` (upstream SHA `ddefc45fbc7f8e46dd73185e68295696d1297887`, 2026-09-17; verified 2026-09-19). MIT licensed. Developer preview — breaking changes are expected, and upstream fixes can invalidate specific claims; when a fact matters, verify against the pinned upstream rather than npm registry packages (published `dsh-client-*` are `0.0.1-rc.1`, far behind the host).
+Skill v0.2.0 · verified against DSH `0.1.6-alpha.2` (upstream SHA `ddefc45fbc7f8e46dd73185e68295696d1297887`, 2026-09-17; verified 2026-09-19). MIT licensed. Developer preview — breaking changes are expected, and upstream fixes can invalidate specific claims; when a fact matters, verify against the pinned upstream rather than npm registry packages (published `dsh-client-*` are `0.0.1-rc.1`, far behind the host).
 
 Deep dives (repo root):
 - `docs/research/2026-09-19-dsh-plugin-authoring-host.md` — host-side facts with `file:line` citations.
 - `docs/research/2026-09-19-dsh-plugin-authoring-client.md` — client-side facts with `file:line` citations.
 - `docs/research/2026-09-18-dsh-plugin-installation.md` — `dsh plugin` CLI, profile layout, layer stack.
 - `docs/research/2026-09-19-dsh-community-plugins-survey.md` — community exemplars (what to borrow).
+- `docs/research/2026-09-19-dsh-client-ui-common-patterns.md` + `…-flagship-dives.md` + `…-dsh-market-deep-dive.md` — how community plugins actually build UI.
+- `docs/research/2026-09-19-dsh-client-build-templates.md` — the three client-build templates compared (use when setting up a build).
 
 ## Mental model
 
@@ -72,7 +74,7 @@ Golden samples in the pinned upstream (read-only reference): `packages/context/t
 1. **Manifest** — `exports["./client"]` → built `lib/client.js`; `dsh.client: { platform: "web", inject?: [...], external?: [...] }`. `inject` here is a code-arrival edge (pre-delivers injected packages' factories), not an activation edge; activation is still Cordis service `inject`.
 2. **Browser half** — `src/client/index.ts`: `export const inject = ['slots', ...]`; `export function apply(ctx)`; register UI through `ctx.slots.inject(key, () => ctx.slots.register({ name, id/key, order, label }, Component))`. Components are pure props (the five shares) and never see `ctx`; data comes from standard hooks (`useSessions`, `useSession`, `useStore`, …). No module-level side effects; every registration needs a stable `id`/`key` and `order`.
 3. **Host half stays required** — an empty `src/index.ts` (`export function apply() {}`) so the package is a Loader entry and its `dsh.client` gets scanned. Two-half-same-package is the official shape (`exports: { ".": …, "./client": … }`).
-4. **Build contract you must replicate outside the upstream monorepo** — there is **no published client build preset**. Target: CJS, `platform: browser`, entry `lib/client.js`, each output wrapped in a self-registration banner `window.__ModuleLoader__.load({ id, factory: (require) => … })`, baseline externals (`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `@deepseek-ai/cordis`, `@deepseek-ai/dsh-client-store`, `@deepseek-ai/dsh-client-ui-slots`, `@deepseek-ai/dsh-client-ui-primitives`, `@deepseek-ai/dsh-client-ui-dockkit`), everything else inlined, CSS Modules injected as `<style data-plugin>`, sourcemaps, and entry mtime touched after chunks (HMR revision). Details in `references/client.md`.
+4. **Build contract you must replicate outside the upstream monorepo** — there is **no published client build preset**. Target: CJS, `platform: browser`, entry `lib/client.js`, each output wrapped in a self-registration banner `window.__ModuleLoader__.load({ id, factory: (require) => … })`, baseline externals (`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `@deepseek-ai/cordis`, `@deepseek-ai/dsh-client-store`, `@deepseek-ai/dsh-client-ui-slots`, `@deepseek-ai/dsh-client-ui-primitives`, `@deepseek-ai/dsh-client-ui-dockkit`), everything else inlined, CSS Modules injected as `<style data-plugin>`, sourcemaps, and entry mtime touched after chunks (HMR revision). Details in `references/client.md`; pick a proven template in `references/community-ui-patterns.md` §1/§6.
 5. **Host communication** — generic RPC is the supported third-party route: client `ctx.connection.rpc.call(channel, endpoint, payload, signal)`; host `ctx.connection.rpc.handle('/my-plugin', handler)` or `intercept('/api', …)`. Envelope: `{ ok: true, value } | { ok: false, error: { code, message, details } }` — never rejects. Streaming: register an exact `ctx.connection.fetch.register` route and use fetch/SSE. Avoid Typert `@Remote` outside the upstream monorepo (generator depends on in-repo tsconfig faces; unverified).
 6. **Debug loop** — rebuild `lib/client.js` on change (`tsdown --watch`); the browser half hot-replaces via HMR polling or a page refresh. Failure signatures (bundle not found, not self-registering, undeclared slot, silent missing UI) are tabulated in `references/client.md`; verify with `window.__DSH_BOOT__.entries`, Network `/plugins/<pkg>/client.js`, and `Settings → Plugins → Plugin list`.
 
@@ -112,3 +114,4 @@ Slot catalog (full tables in `references/slots.md`):
 - `references/host.md` — host API surface: plugin shapes, tools DSL, events/waterfall, settings, credentials, system prompt, sessions/agents, lifecycle, publish/validate.
 - `references/client.md` — `dsh.client` fields, client services/hooks, RPC, build contract, failure table, verification checklist.
 - `references/slots.md` — full slot catalog with kinds/scopes and source declarations.
+- `references/community-ui-patterns.md` — field notes from 13 community plugins: build routes, data channels, slot/RPC conventions, proven practices, drift hazards, anti-patterns.
