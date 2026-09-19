@@ -1,8 +1,9 @@
 ---
 name: dsh-plugin-dev
 description: Build full-stack DeepSeek Harness (DSH) plugins — host-side bundle plugins (tools, services, events, settings, credentials) and client-side web UI (slots, lazy-CJS bundles, client↔host RPC). Use when creating or modifying a DSH plugin package (dsh.bundle / dsh.client, cordis.patch.yml), registering tools or UI slots, wiring client RPC, packaging/installing a plugin into a DSH profile, or debugging a plugin that installs/compiles but does not activate or show up.
+license: MIT
 metadata:
-  skillVersion: "0.1.0"
+  skillVersion: "0.1.1"
   verifiedAgainst: "dsh 0.1.6-alpha.2"
   upstreamSha: "ddefc45fbc7f8e46dd73185e68295696d1297887"
   verifiedAt: "2026-09-19"
@@ -11,7 +12,7 @@ metadata:
 
 # DSH Plugin Development (full-stack)
 
-Skill v0.1.0 · verified against DSH `0.1.6-alpha.2` (upstream SHA `ddefc45fbc7f8e46dd73185e68295696d1297887`, 2026-09-17; verified 2026-09-19). Developer preview — breaking changes are expected, and upstream fixes can invalidate specific claims; when a fact matters, verify against the pinned upstream rather than npm registry packages (published `dsh-client-*` are `0.0.1-rc.1`, far behind the host).
+Skill v0.1.1 · verified against DSH `0.1.6-alpha.2` (upstream SHA `ddefc45fbc7f8e46dd73185e68295696d1297887`, 2026-09-17; verified 2026-09-19). MIT licensed. Developer preview — breaking changes are expected, and upstream fixes can invalidate specific claims; when a fact matters, verify against the pinned upstream rather than npm registry packages (published `dsh-client-*` are `0.0.1-rc.1`, far behind the host).
 
 Deep dives (repo root):
 - `docs/research/2026-09-19-dsh-plugin-authoring-host.md` — host-side facts with `file:line` citations.

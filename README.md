@@ -4,6 +4,8 @@ A full-stack authoring guide for [DeepSeek Harness](https://github.com/deepseek-
 
 One npm package can carry two halves — a host half (`dsh.bundle`: Cordis plugin, tools, services, events, settings, approvals) and a client half (`dsh.client`: slots, lazy-CJS UI bundle, client↔host RPC). This skill teaches both, plus the packaging and install rules that make them actually show up.
 
+MIT licensed — use it, fork it, ship it.
+
 ## Install
 
 ```sh
@@ -25,7 +27,7 @@ Or copy `SKILL.md` and `references/` into your harness's skills directory (e.g. 
 
 | Field | Value |
 | --- | --- |
-| `skillVersion` | 0.1.0 |
+| `skillVersion` | 0.1.1 |
 | `verifiedAgainst` | DSH 0.1.6-alpha.2 |
 | `upstreamSha` | `ddefc45fbc7f8e46dd73185e68295696d1297887` (2026-09-17) |
 | `verifiedAt` | 2026-09-19 |

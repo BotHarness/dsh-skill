@@ -14,7 +14,7 @@ title: ''
 
 ## Provenance of this mirror
 
-- Skill version: 0.1.0
+- Skill version: 0.1.1
 - Verified against: DSH 0.1.6-alpha.2 (`ddefc45fbc7f8e46dd73185e68295696d1297887`)
 
 This repository is a generated mirror of `BotHarness/BotHarness` (`.agents/skills/dsh-plugin-dev/`);
